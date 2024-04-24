@@ -1,5 +1,12 @@
 let questions = [];
+const questionElement = document.getElementById("question");
+const choicesButton = document.getElementById("choices-buttons");
+const nextButton = document.getElementById("next-btn");
 
+let currentQuestionIndex = 0;
+let marks = 0;
+
+// Load questions and answers from JSON file
 const loadQuestions = () => {
   fetch("questions.json")
     .then((response) => response.json())
@@ -10,13 +17,7 @@ const loadQuestions = () => {
     .catch((error) => console.error("Error loading questions", error));
 };
 
-const questionElement = document.getElementById("question");
-const choicesButton = document.getElementById("choices-buttons");
-const nextButton = document.getElementById("next-btn");
-
-let currentQuestionIndex = 0;
-let marks = 0;
-
+// Initialize the application
 const startQuiz = () => {
   currentQuestionIndex = 0;
   marks = 0;
@@ -24,15 +25,16 @@ const startQuiz = () => {
   showQuestion();
 };
 
+// Display question and choices
 const showQuestion = () => {
   resetState();
   const currentQuestion = questions[currentQuestionIndex];
   const questionNum = currentQuestionIndex + 1;
-  questionElement.innerHTML = questionNum + ". " + currentQuestion.question;
+  questionElement.textContent = questionNum + ". " + currentQuestion.question;
 
   currentQuestion.choices.forEach((choice) => {
     const button = document.createElement("button");
-    button.innerHTML = choice.text;
+    button.textContent = choice.text;
     button.classList.add("btn");
     choicesButton.appendChild(button);
     if (choice.answer) {
@@ -42,13 +44,15 @@ const showQuestion = () => {
   });
 };
 
+// Reset all buttons
 const resetState = () => {
   nextButton.style.display = "none";
   while (choicesButton.firstChild) {
-    choicesButton.removeChild(choicesButton.firstChild);
+    choicesButton.innerHTML = "";
   }
 };
 
+// Handle button style when clicked
 const selectedChoice = (e) => {
   const selectedBtn = e.target;
   const isCorrect = selectedBtn.dataset.answer === "true";
@@ -67,6 +71,17 @@ const selectedChoice = (e) => {
   nextButton.style.display = "block";
 };
 
+// Clicked Next button handling
+const handleNextButton = () => {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  };
+
+  // Display result after finished the quiz
 const showResult = () => {
   resetState();
   questionElement.innerHTML = `You got ${marks} out of ${questions.length}!`;
@@ -74,16 +89,7 @@ const showResult = () => {
   nextButton.style.display = "block";
 };
 
-const handleNextButton = () => {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
-    showQuestion();
-  } else {
-    showResult();
-  }
-};
-
-nextButton.addEventListener("click", () => {
+nextButton.addEventListener("click", handleNextButton => {
   if (currentQuestionIndex < questions.length) {
     handleNextButton();
   } else {
